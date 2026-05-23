@@ -11,14 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCalculatorStore } from "@/stores/calculator-store";
+import { toast } from "sonner";
 
-type Props = {
-  /** Called when user applies the result */
-  onApply?: (value: number) => void;
-};
-
-export function CalculatorModal({ onApply }: Props) {
-  const { open, setOpen, applyField } = useCalculatorStore();
+export function CalculatorModal() {
+  const { open, setOpen } = useCalculatorStore();
   const [expr, setExpr] = useState("");
   const [result, setResult] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +50,12 @@ export function CalculatorModal({ onApply }: Props) {
     setExpr((prev) => `${prev}${s}`);
   }
 
+  function copyResult() {
+    if (result == null) return;
+    void navigator.clipboard.writeText(String(result));
+    toast.success("Copied to clipboard");
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-md">
@@ -66,10 +68,9 @@ export function CalculatorModal({ onApply }: Props) {
             value={expr}
             onChange={(e) => setExpr(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && result != null) {
                 e.preventDefault();
-                if (result != null) onApply?.(result);
-                setOpen(false);
+                copyResult();
               }
             }}
             placeholder="e.g. 2 * 60 or 1.5 * 280"
@@ -112,16 +113,8 @@ export function CalculatorModal({ onApply }: Props) {
             </Button>
           </div>
           <div className="flex gap-2 pt-2">
-            <Button
-              type="button"
-              className="flex-1"
-              disabled={result == null}
-              onClick={() => {
-                if (result != null) onApply?.(result);
-                setOpen(false);
-              }}
-            >
-              Apply{applyField !== "none" ? ` to ${applyField}` : ""}
+            <Button type="button" className="flex-1" disabled={result == null} onClick={copyResult}>
+              Copy result
             </Button>
           </div>
           <p className="text-muted-foreground text-xs">Shortcut: Ctrl+K</p>

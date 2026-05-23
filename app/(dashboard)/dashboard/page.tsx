@@ -1,18 +1,14 @@
 import { requireHousehold } from "@/lib/household";
 import { createClient } from "@/lib/supabase/server";
-import { formatDate, formatInr } from "@/lib/format";
+import { formatInr } from "@/lib/format";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { CategoryPie, SpendTrendChart } from "@/components/charts/lazy-charts";
-import { DashboardReminders } from "@/components/dashboard/reminders";
+import {
+  DashboardQuickActions,
+  DashboardDueCard,
+  DashboardRecentTable,
+} from "@/components/dashboard/dashboard-actions";
+import { canEditLedger } from "@/lib/household";
 
 function monthBounds() {
   const now = new Date();
@@ -136,14 +132,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
-          {new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" })}
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">
+            {new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" })}
+          </p>
+        </div>
+        <DashboardQuickActions canEdit={canEditLedger(ctx.role)} totalPending={totalPending} />
       </div>
 
-      <DashboardReminders dues={unpaidRows ?? []} />
+      <DashboardDueCard dues={unpaidRows ?? []} canEdit={canEditLedger(ctx.role)} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-sm">
@@ -236,46 +235,18 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg">Recent purchases</CardTitle>
-        </CardHeader>
-        <CardContent className="px-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recent.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">{r.item_name}</TableCell>
-                  <TableCell>{formatDate(r.purchase_date)}</TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatInr(Number(r.total_with_tax ?? r.line_total))}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={r.payment_status === "paid" ? "default" : "secondary"}>
-                      {r.payment_status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!recent.length && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-muted-foreground text-center text-sm">
-                    No purchases this month.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DashboardRecentTable
+        recent={recent.map((r) => ({
+          id: r.id,
+          item_name: r.item_name,
+          total_with_tax: r.total_with_tax as number | null,
+          line_total: Number(r.line_total),
+          purchase_date: r.purchase_date,
+          payment_status: r.payment_status as string,
+          balance_due: r.balance_due as number | null,
+        }))}
+        canEdit={canEditLedger(ctx.role)}
+      />
     </div>
   );
 }

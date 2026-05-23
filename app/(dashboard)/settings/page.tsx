@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   const [{ data: members }, { data: categories }, { data: logs }] = await Promise.all([
     supabase
       .from("household_members")
-      .select("user_id, role")
+      .select("user_id, role, profiles(display_name)")
       .eq("household_id", ctx.householdId)
       .eq("status", "active"),
     supabase.from("categories").select("id, name").eq("household_id", ctx.householdId).order("sort_order"),
@@ -27,10 +27,20 @@ export default async function SettingsPage() {
   const proto = h.get("x-forwarded-proto") ?? "http";
   const inviteBaseUrl = `${proto}://${host}`;
 
+  const membersWithNames = (members ?? []).map((m) => {
+    const raw = m.profiles as { display_name: string | null } | { display_name: string | null }[] | null;
+    const profile = Array.isArray(raw) ? raw[0] : raw;
+    return {
+      user_id: m.user_id,
+      role: m.role,
+      display_name: profile?.display_name ?? null,
+    };
+  });
+
   return (
     <SettingsClient
       role={ctx.role}
-      members={members ?? []}
+      members={membersWithNames}
       categories={categories ?? []}
       logs={logs ?? []}
       inviteBaseUrl={inviteBaseUrl}

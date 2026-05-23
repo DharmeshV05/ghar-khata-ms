@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,16 +72,36 @@ type Props = {
   categories: Opt[];
   vendors: Opt[];
   canEdit: boolean;
+  canManageCategories?: boolean;
+  initialAddOpen?: boolean;
+  initialStatus?: string;
+  initialPayId?: string;
 };
 
-export function PurchasesClient({ purchases, categories, vendors, canEdit }: Props) {
+export function PurchasesClient({
+  purchases,
+  categories,
+  vendors,
+  canEdit,
+  canManageCategories = false,
+  initialAddOpen = false,
+  initialStatus,
+  initialPayId,
+}: Props) {
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<string>("all");
+  const [status, setStatus] = useState<string>(initialStatus ?? "all");
   const [showArchived, setShowArchived] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(initialAddOpen);
   const [editRow, setEditRow] = useState<PurchaseRow | null>(null);
   const [payRow, setPayRow] = useState<PurchaseRow | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (initialPayId) {
+      const row = purchases.find((p) => p.id === initialPayId);
+      if (row && row.payment_status !== "paid") setPayRow(row);
+    }
+  }, [initialPayId, purchases]);
 
   const filtered = useMemo(() => {
     let rows = purchases;
@@ -120,7 +140,9 @@ export function PurchasesClient({ purchases, categories, vendors, canEdit }: Pro
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Purchases</h1>
-          <p className="text-muted-foreground text-sm">Search, filter, and manage daily entries</p>
+          <p className="text-muted-foreground text-sm">
+            Add what you bought today — tap Pay when you settle the bill
+          </p>
         </div>
         {canEdit && (
           <Button onClick={() => setAddOpen(true)}>
@@ -138,6 +160,7 @@ export function PurchasesClient({ purchases, categories, vendors, canEdit }: Pro
             <PurchaseForm
               categories={categories}
               vendors={vendors}
+              canManageCategories={canManageCategories}
               onSubmit={handleCreate}
               onCancel={() => setAddOpen(false)}
             />
@@ -272,8 +295,10 @@ export function PurchasesClient({ purchases, categories, vendors, canEdit }: Pro
               <DialogTitle>Edit purchase</DialogTitle>
             </DialogHeader>
             <PurchaseForm
+              mode="full"
               categories={categories}
               vendors={vendors}
+              canManageCategories={canManageCategories}
               defaultValues={{
                 item_name: editRow.item_name,
                 quantity: editRow.quantity,

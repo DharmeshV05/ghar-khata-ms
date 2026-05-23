@@ -1,9 +1,14 @@
-import { requireHousehold, canEditLedger } from "@/lib/household";
+import { requireHousehold, canEditLedger, canManageHousehold } from "@/lib/household";
 import { createClient } from "@/lib/supabase/server";
 import { PurchasesClient } from "@/components/purchases/purchases-client";
 
-export default async function PurchasesPage() {
+export default async function PurchasesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ add?: string; status?: string; pay?: string }>;
+}) {
   const ctx = await requireHousehold();
+  const params = await searchParams;
   const supabase = await createClient();
 
   const [{ data: purchases }, { data: categories }, { data: vendors }] = await Promise.all([
@@ -25,6 +30,10 @@ export default async function PurchasesPage() {
       categories={categories ?? []}
       vendors={vendors ?? []}
       canEdit={canEditLedger(ctx.role)}
+      canManageCategories={canManageHousehold(ctx.role)}
+      initialAddOpen={params.add === "1"}
+      initialStatus={params.status === "unpaid" ? "unpaid" : undefined}
+      initialPayId={params.pay}
     />
   );
 }
