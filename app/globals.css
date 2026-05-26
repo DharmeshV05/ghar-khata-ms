@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -46,75 +46,149 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* GharKhata Design System Extended Colors */
+  --color-gk-surface: var(--gk-surface);
+  --color-gk-surface-dim: var(--gk-surface-dim);
+  --color-gk-surface-container: var(--gk-surface-container);
+  --color-gk-surface-container-low: var(--gk-surface-container-low);
+  --color-gk-surface-container-high: var(--gk-surface-container-high);
+  --color-gk-surface-container-highest: var(--gk-surface-container-highest);
+  --color-gk-surface-container-lowest: var(--gk-surface-container-lowest);
+  --color-gk-on-surface: var(--gk-on-surface);
+  --color-gk-on-surface-variant: var(--gk-on-surface-variant);
+  --color-gk-outline: var(--gk-outline);
+  --color-gk-outline-variant: var(--gk-outline-variant);
+  --color-gk-primary-container: var(--gk-primary-container);
+  --color-gk-secondary: var(--gk-secondary);
+  --color-gk-secondary-container: var(--gk-secondary-container);
+  --color-gk-on-secondary: var(--gk-on-secondary);
+  --color-gk-on-secondary-container: var(--gk-on-secondary-container);
+  --color-gk-tertiary: var(--gk-tertiary);
+  --color-gk-tertiary-dim: var(--gk-tertiary-dim);
+  --color-gk-on-tertiary-container: var(--gk-on-tertiary-container);
+  --color-gk-error: var(--gk-error);
+  --color-gk-error-container: var(--gk-error-container);
+  --color-gk-on-error-container: var(--gk-on-error-container);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* GharKhata Stitch Design System — Light */
+  --background: #f8f9ff;
+  --foreground: #0b1c30;
+  --card: #ffffff;
+  --card-foreground: #0b1c30;
+  --popover: #ffffff;
+  --popover-foreground: #0b1c30;
+  --primary: #0f172a;
+  --primary-foreground: #ffffff;
+  --secondary: #0051d5;
+  --secondary-foreground: #ffffff;
+  --muted: #eff4ff;
+  --muted-foreground: #45464d;
+  --accent: #e5eeff;
+  --accent-foreground: #0b1c30;
+  --destructive: #ba1a1a;
+  --border: #c6c6cd;
+  --input: #c6c6cd;
+  --ring: #0051d5;
+  --chart-1: #0051d5;
+  --chart-2: #4edea3;
+  --chart-3: #316bf3;
+  --chart-4: #b4c5ff;
+  --chart-5: #002113;
+  --radius: 0.75rem;
+
+  /* Sidebar */
+  --sidebar: #eff4ff;
+  --sidebar-foreground: #0b1c30;
+  --sidebar-primary: #0051d5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #316bf3;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #c6c6cd;
+  --sidebar-ring: #0051d5;
+
+  /* GharKhata Extended Palette */
+  --gk-surface: #f8f9ff;
+  --gk-surface-dim: #cbdbf5;
+  --gk-surface-container: #e5eeff;
+  --gk-surface-container-low: #eff4ff;
+  --gk-surface-container-high: #dce9ff;
+  --gk-surface-container-highest: #d3e4fe;
+  --gk-surface-container-lowest: #ffffff;
+  --gk-on-surface: #0b1c30;
+  --gk-on-surface-variant: #45464d;
+  --gk-outline: #76777d;
+  --gk-outline-variant: #c6c6cd;
+  --gk-primary-container: #131b2e;
+  --gk-secondary: #0051d5;
+  --gk-secondary-container: #316bf3;
+  --gk-on-secondary: #ffffff;
+  --gk-on-secondary-container: #fefcff;
+  --gk-tertiary: #10b981;
+  --gk-tertiary-dim: #4edea3;
+  --gk-on-tertiary-container: #005236;
+  --gk-error: #ba1a1a;
+  --gk-error-container: #ffdad6;
+  --gk-on-error-container: #93000a;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0b1c30;
+  --foreground: #e5eeff;
+  --card: #131b2e;
+  --card-foreground: #e5eeff;
+  --popover: #131b2e;
+  --popover-foreground: #e5eeff;
+  --primary: #bec6e0;
+  --primary-foreground: #131b2e;
+  --secondary: #b4c5ff;
+  --secondary-foreground: #00174b;
+  --muted: #213145;
+  --muted-foreground: #bec6e0;
+  --accent: #213145;
+  --accent-foreground: #e5eeff;
+  --destructive: #ff897d;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #b4c5ff;
+  --chart-1: #b4c5ff;
+  --chart-2: #4edea3;
+  --chart-3: #316bf3;
+  --chart-4: #7c839b;
+  --chart-5: #6ffbbe;
+  --sidebar: #131b2e;
+  --sidebar-foreground: #e5eeff;
+  --sidebar-primary: #b4c5ff;
+  --sidebar-primary-foreground: #00174b;
+  --sidebar-accent: #316bf3;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #b4c5ff;
+
+  --gk-surface: #0b1c30;
+  --gk-surface-dim: #0a1525;
+  --gk-surface-container: #131b2e;
+  --gk-surface-container-low: #101827;
+  --gk-surface-container-high: #1a2540;
+  --gk-surface-container-highest: #213145;
+  --gk-surface-container-lowest: #080f1a;
+  --gk-on-surface: #e5eeff;
+  --gk-on-surface-variant: #bec6e0;
+  --gk-outline: #7c839b;
+  --gk-outline-variant: #3f465c;
+  --gk-primary-container: #213145;
+  --gk-secondary: #b4c5ff;
+  --gk-secondary-container: #003ea8;
+  --gk-on-secondary: #00174b;
+  --gk-on-secondary-container: #dbe1ff;
+  --gk-tertiary: #4edea3;
+  --gk-tertiary-dim: #4edea3;
+  --gk-on-tertiary-container: #6ffbbe;
+  --gk-error: #ff897d;
+  --gk-error-container: #93000a;
+  --gk-on-error-container: #ffdad6;
 }
 
 @layer base {
@@ -127,4 +201,92 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ──────────────────────────────────────────────────────
+   GharKhata Design System — Financial UI Utilities
+   ────────────────────────────────────────────────────── */
+
+/* Financial card elevation */
+.financial-card-lift {
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.financial-card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+}
+
+/* Bento card hover */
+.bento-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.bento-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Status pill badges */
+.status-paid {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+  background: rgba(78, 222, 163, 0.2);
+  color: #005236;
+}
+.dark .status-paid {
+  background: rgba(78, 222, 163, 0.15);
+  color: #6ffbbe;
+}
+.status-unpaid {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+  background: #ffdad6;
+  color: #93000a;
+}
+.dark .status-unpaid {
+  background: rgba(255, 137, 125, 0.15);
+  color: #ff897d;
+}
+.status-partial,
+.status-pending {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+  background: #e5eeff;
+  color: #45464d;
+}
+.dark .status-partial,
+.dark .status-pending {
+  background: rgba(190, 198, 224, 0.15);
+  color: #bec6e0;
+}
+
+/* Category chip */
+.category-chip {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs;
+  background: var(--gk-surface-container);
+  color: var(--gk-on-surface-variant);
+}
+
+/* Numeric data font style */
+.font-numeric {
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Vendor card hover overlay */
+.vendor-card-hover .vendor-action-overlay {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.vendor-card-hover:hover .vendor-action-overlay {
+  opacity: 1;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Progress bar animation */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+.animate-progress {
+  animation: progress-fill 0.8s ease-out;
 }

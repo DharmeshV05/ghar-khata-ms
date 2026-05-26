@@ -15,35 +15,46 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!ctx.householdId) redirect("/onboarding");
 
   return (
-    <div className="flex min-h-screen w-full">
-      <aside className="hidden w-56 shrink-0 border-r bg-sidebar md:flex md:flex-col">
-        <div className="flex h-14 items-center border-b px-4">
-          <Link href="/dashboard" className="font-semibold tracking-tight">
+    <div className="flex min-h-screen w-full bg-background">
+      {/* Sidebar */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-[var(--gk-surface-container-low)] md:flex">
+        <div className="flex h-16 items-center border-b border-border px-4">
+          <Link href="/dashboard" className="text-lg font-bold tracking-tight text-foreground">
             GharKhata
           </Link>
         </div>
-        <SidebarNav />
+        <div className="flex flex-1 flex-col overflow-y-auto py-4">
+          <SidebarNav />
+        </div>
       </aside>
+
+      {/* Main Area */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b px-4 md:px-6">
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between border-b border-border bg-card/95 px-4 backdrop-blur-lg md:px-6">
           <div className="flex items-center gap-3">
             <HouseholdSwitcher households={ctx.households} currentId={ctx.householdId} />
           </div>
           <div className="flex items-center gap-2">
             <CalculatorToggle />
             <ThemeToggle />
-            <span className="text-muted-foreground hidden text-sm md:inline">
+            <span className="hidden text-sm text-muted-foreground md:inline">
               {ctx.userEmail}
             </span>
             <form action={signOutAction}>
-              <Button type="submit" variant="ghost" size="sm">
+              <Button type="submit" variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive">
                 Sign out
               </Button>
             </form>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-20 md:px-6 md:pb-6">{children}</main>
+
+        {/* Page Content */}
+        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 pb-20 md:px-8 md:py-8 md:pb-8">
+          {children}
+        </main>
       </div>
+
       <MobileNav />
       <DashboardCalculator />
     </div>

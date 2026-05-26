@@ -1,7 +1,7 @@
 import { requireHousehold } from "@/lib/household";
 import { createClient } from "@/lib/supabase/server";
 import { formatInr } from "@/lib/format";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CategoryPie, SpendTrendChart } from "@/components/charts/lazy-charts";
 import {
   DashboardQuickActions,
@@ -130,65 +130,121 @@ export default async function DashboardPage() {
     };
   });
 
+  const paidPct = totalExpense > 0 ? Math.round((paidAmount / totalExpense) * 100) : 0;
+  const unpaidPct = 100 - paidPct;
+
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            Financial Overview
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Tracking household liquidity and liabilities —{" "}
             {new Date(year, month - 1).toLocaleString("en-IN", { month: "long", year: "numeric" })}
           </p>
         </div>
         <DashboardQuickActions canEdit={canEditLedger(ctx.role)} totalPending={totalPending} />
       </div>
 
+      {/* Due Card */}
       <DashboardDueCard dues={unpaidRows ?? []} canEdit={canEditLedger(ctx.role)} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Monthly spend</CardDescription>
-            <CardTitle className="text-2xl">{formatInr(totalExpense)}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Pending to pay</CardDescription>
-            <CardTitle className="text-2xl text-amber-600 dark:text-amber-400">
-              {formatInr(totalPending)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Recorded payments (month)</CardDescription>
-            <CardTitle className="text-2xl text-emerald-600 dark:text-emerald-400">
-              {formatInr(paidAmount)}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Purchases (count)</CardDescription>
-            <CardTitle className="text-2xl">{purchases.length}</CardTitle>
-          </CardHeader>
-        </Card>
+      {/* Summary Stat Cards — Bento Grid */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Total Monthly Expenses */}
+        <div className="financial-card-lift rounded-xl border border-border bg-card p-5">
+          <div className="mb-3 flex items-start justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gk-secondary)]/10 text-[var(--gk-secondary)]">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            {paidPct > 0 && (
+              <span className="status-paid text-[11px]">
+                {paidPct}% paid
+              </span>
+            )}
+          </div>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Total Monthly Expenses
+          </p>
+          <p className="font-numeric text-2xl text-foreground md:text-3xl">{formatInr(totalExpense)}</p>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-accent">
+            <div
+              className="h-full rounded-full bg-[var(--gk-secondary)] animate-progress"
+              style={{ width: `${Math.min(paidPct, 100)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Total Pending */}
+        <div className="financial-card-lift rounded-xl border border-border bg-card p-5">
+          <div className="mb-3 flex items-start justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            {totalPending > 0 && (
+              <span className="status-unpaid text-[11px]">High Priority</span>
+            )}
+          </div>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Total Pending Amount
+          </p>
+          <p className="font-numeric text-2xl text-foreground md:text-3xl">{formatInr(totalPending)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {(unpaidRows ?? []).length} items due
+          </p>
+        </div>
+
+        {/* Paid vs Unpaid Breakdown */}
+        <div className="financial-card-lift rounded-xl border border-border bg-card p-5">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Paid vs Unpaid Breakdown
+          </p>
+          <div className="mb-3 flex items-end gap-3" style={{ height: 80 }}>
+            <div className="flex flex-1 flex-col items-center gap-1">
+              <div
+                className="w-full rounded-t bg-[var(--gk-tertiary-dim)] transition-all"
+                style={{ height: `${Math.max(paidPct * 0.8, 4)}px` }}
+              />
+              <span className="text-[11px] font-semibold text-muted-foreground">Paid</span>
+            </div>
+            <div className="flex flex-1 flex-col items-center gap-1">
+              <div
+                className="w-full rounded-t bg-destructive transition-all"
+                style={{ height: `${Math.max(unpaidPct * 0.8, 4)}px` }}
+              />
+              <span className="text-[11px] font-semibold text-muted-foreground">Unpaid</span>
+            </div>
+          </div>
+          <div className="flex justify-between font-numeric text-lg">
+            <span className="text-[var(--gk-on-tertiary-container)]">{paidPct}%</span>
+            <span className="text-destructive">{unpaidPct}%</span>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="shadow-sm">
+      {/* Charts Row */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* Spending Trend — wider */}
+        <Card className="financial-card-lift lg:col-span-8">
           <CardHeader>
-            <CardTitle className="text-lg">Spending trend</CardTitle>
-            <CardDescription>Last 6 months</CardDescription>
+            <CardTitle className="text-lg font-semibold">Monthly Analytics</CardTitle>
           </CardHeader>
           <CardContent className="h-72 pl-0">
             <SpendTrendChart data={last6Months} />
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+
+        {/* Category Spend */}
+        <Card className="financial-card-lift lg:col-span-4">
           <CardHeader>
-            <CardTitle className="text-lg">By category</CardTitle>
-            <CardDescription>This month</CardDescription>
+            <CardTitle className="text-lg font-semibold">Category Spend</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <CategoryPie data={[...categoryMap.entries()].map(([name, value]) => ({ name, value }))} />
@@ -196,45 +252,72 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
+      {/* Top Vendors & Most Purchased */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="shadow-sm">
+        <Card className="financial-card-lift">
           <CardHeader>
-            <CardTitle className="text-lg">Top vendors</CardTitle>
+            <CardTitle className="text-lg font-semibold">Top Vendors</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <div className="space-y-3">
               {topVendors.map(([name, amt]) => (
-                <li key={name} className="flex justify-between text-sm">
-                  <span>{name}</span>
-                  <span className="font-medium tabular-nums">{formatInr(amt)}</span>
-                </li>
+                <div key={name} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gk-surface-container)] text-[10px] font-bold text-muted-foreground">
+                        {name.slice(0, 2).toUpperCase()}
+                      </span>
+                      {name}
+                    </span>
+                    <span className="font-numeric tabular-nums">{formatInr(amt)}</span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-accent">
+                    <div
+                      className="h-full rounded-full bg-[var(--gk-secondary-container)] animate-progress"
+                      style={{ width: `${totalExpense > 0 ? Math.round((amt / totalExpense) * 100) : 0}%` }}
+                    />
+                  </div>
+                </div>
               ))}
               {!topVendors.length && (
-                <li className="text-muted-foreground text-sm">No data yet this month.</li>
+                <p className="text-sm text-muted-foreground">No data yet this month.</p>
               )}
-            </ul>
+            </div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+
+        <Card className="financial-card-lift">
           <CardHeader>
-            <CardTitle className="text-lg">Most purchased items</CardTitle>
+            <CardTitle className="text-lg font-semibold">Most Purchased Items</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2">
+            <div className="space-y-2">
               {topItems.map(([name, n]) => (
-                <li key={name} className="flex justify-between text-sm">
-                  <span className="truncate pr-2">{name}</span>
-                  <span className="text-muted-foreground shrink-0">{n}×</span>
-                </li>
+                <div
+                  key={name}
+                  className="flex items-center gap-3 rounded-lg border border-transparent p-2 transition-colors hover:border-border hover:bg-accent"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gk-surface-container-high)] text-[var(--gk-secondary)]">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold">{name}</p>
+                    <p className="text-xs text-muted-foreground">Bought {n} times</p>
+                  </div>
+                  <span className="font-numeric text-sm">{n}×</span>
+                </div>
               ))}
               {!topItems.length && (
-                <li className="text-muted-foreground text-sm">No purchases yet.</li>
+                <p className="text-sm text-muted-foreground">No purchases yet.</p>
               )}
-            </ul>
+            </div>
           </CardContent>
         </Card>
       </div>
 
+      {/* Recent Transactions */}
       <DashboardRecentTable
         recent={recent.map((r) => ({
           id: r.id,

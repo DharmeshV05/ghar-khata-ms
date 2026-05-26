@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { FileDown, Printer } from "lucide-react";
+import { FileDown, Printer, FileText, Table2 } from "lucide-react";
 
 type Props = {
   year: number;
@@ -22,24 +22,77 @@ type Props = {
 export function ReportsClient({ year, month }: Props) {
   const [y, setY] = useState(String(year));
   const [m, setM] = useState(String(month));
+  const [period, setPeriod] = useState<"monthly" | "quarterly" | "yearly">("monthly");
 
   const qs = `year=${y}&month=${m}`;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Reports</h1>
-        <p className="text-muted-foreground text-sm">Export monthly or yearly summaries</p>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            Financial Analytics
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Insightful breakdown of your household economy.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Period Selector */}
+          <div className="inline-flex rounded-xl bg-[var(--gk-surface-container-high)] p-1">
+            {(["monthly", "quarterly", "yearly"] as const).map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={cn(
+                  "rounded-lg px-4 py-1.5 text-xs font-semibold transition-all capitalize",
+                  period === p
+                    ? "bg-card shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+
+          {/* Export Actions */}
+          <div className="flex items-center gap-2">
+            <a
+              href={`/api/reports/export?format=pdf&${qs}`}
+              download
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1.5 border-border"
+              )}
+            >
+              <FileText className="h-4 w-4" />
+              Export as PDF
+            </a>
+            <a
+              href={`/api/reports/export?format=xlsx&${qs}`}
+              download
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "gap-1.5 border-border"
+              )}
+            >
+              <Table2 className="h-4 w-4" />
+              Export as Excel
+            </a>
+          </div>
+        </div>
       </div>
 
-      <Card className="shadow-sm">
+      {/* Period Selectors */}
+      <Card className="financial-card-lift">
         <CardHeader>
-          <CardTitle className="text-lg">Period</CardTitle>
-          <CardDescription>Select month and year for exports</CardDescription>
+          <CardTitle className="text-lg font-semibold">Select Period</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
           <Select value={y} onValueChange={(v) => v && setY(v)}>
-            <SelectTrigger className="w-28">
+            <SelectTrigger className="w-28 border-border bg-card">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -51,7 +104,7 @@ export function ReportsClient({ year, month }: Props) {
             </SelectContent>
           </Select>
           <Select value={m} onValueChange={(v) => v && setM(v)}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-36 border-border bg-card">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -65,46 +118,82 @@ export function ReportsClient({ year, month }: Props) {
         </CardContent>
       </Card>
 
+      {/* Export Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="shadow-sm">
+        <Card className="financial-card-lift">
           <CardHeader>
-            <CardTitle className="text-base">PDF report</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-semibold">PDF Report</CardTitle>
+                <p className="text-xs text-muted-foreground">Download formatted statement</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <a
               href={`/api/reports/export?format=pdf&${qs}`}
               download
-              className={cn(buttonVariants({ variant: "outline" }), "w-full inline-flex")}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "w-full gap-2 border-border hover:bg-accent"
+              )}
             >
-              <FileDown className="mr-2 h-4 w-4" /> Download PDF
+              <FileDown className="h-4 w-4" /> Download PDF
             </a>
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+
+        <Card className="financial-card-lift">
           <CardHeader>
-            <CardTitle className="text-base">Excel report</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gk-tertiary-dim)]/10 text-[var(--gk-on-tertiary-container)]">
+                <Table2 className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-semibold">Excel Report</CardTitle>
+                <p className="text-xs text-muted-foreground">Spreadsheet with all data</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <a
               href={`/api/reports/export?format=xlsx&${qs}`}
               download
-              className={cn(buttonVariants({ variant: "outline" }), "w-full inline-flex")}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "w-full gap-2 border-border hover:bg-accent"
+              )}
             >
-              <FileDown className="mr-2 h-4 w-4" /> Download Excel
+              <FileDown className="h-4 w-4" /> Download Excel
             </a>
           </CardContent>
         </Card>
-        <Card className="shadow-sm">
+
+        <Card className="financial-card-lift">
           <CardHeader>
-            <CardTitle className="text-base">Print statement</CardTitle>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gk-secondary)]/10 text-[var(--gk-secondary)]">
+                <Printer className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-base font-semibold">Print Statement</CardTitle>
+                <p className="text-xs text-muted-foreground">Printer-friendly view</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Link
               href={`/reports/print?${qs}`}
               target="_blank"
-              className={cn(buttonVariants({ variant: "outline" }), "w-full inline-flex")}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "w-full gap-2 border-border hover:bg-accent"
+              )}
             >
-              <Printer className="mr-2 h-4 w-4" /> Open printable view
+              <Printer className="h-4 w-4" /> Open Printable View
             </Link>
           </CardContent>
         </Card>

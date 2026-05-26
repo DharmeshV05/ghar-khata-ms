@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -77,14 +76,26 @@ export function DashboardQuickActions({
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Link href="/purchases?add=1" className={cn(buttonVariants())}>
+      <Link
+        href="/purchases?add=1"
+        className={cn(
+          buttonVariants(),
+          "bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-transform"
+        )}
+      >
         <Plus className="mr-2 h-4 w-4" />
-        Add purchase
+        Add Entry
       </Link>
       {totalPending > 0 && (
-        <Link href="/purchases?status=unpaid" className={cn(buttonVariants({ variant: "outline" }))}>
+        <Link
+          href="/purchases?status=unpaid"
+          className={cn(
+            buttonVariants({ variant: "outline" }),
+            "border-border hover:bg-accent"
+          )}
+        >
           <Receipt className="mr-2 h-4 w-4" />
-          View dues ({formatInr(totalPending)})
+          View Dues ({formatInr(totalPending)})
         </Link>
       )}
     </div>
@@ -98,50 +109,53 @@ export function DashboardDueCard({ dues, canEdit }: { dues: Due[]; canEdit: bool
 
   return (
     <>
-      <Card className="border-amber-500/30 bg-amber-500/5 shadow-sm">
-        <CardHeader className="pb-2">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                Payments due
-              </CardTitle>
-              <CardDescription>Tap Pay to record a payment without leaving home</CardDescription>
+      <div className="financial-card-lift rounded-xl border border-destructive/20 bg-[var(--gk-error-container)]/5 p-5">
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+              <AlertCircle className="h-5 w-5" />
             </div>
-            <Link
-              href="/purchases?status=unpaid"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "shrink-0")}
-            >
-              See all
-            </Link>
+            <div>
+              <h3 className="text-base font-bold text-foreground">Payments Due</h3>
+              <p className="text-xs text-muted-foreground">Tap Pay to record a payment</p>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {dueRows.map((d) => (
-              <li
-                key={d.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-background/60 px-3 py-2 text-sm"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium">{d.item_name}</p>
-                  <p className="text-muted-foreground text-xs">{formatDate(d.purchase_date)}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-amber-700 tabular-nums dark:text-amber-300">
-                    {formatInr(Number(d.balance_due))}
-                  </span>
-                  {canEdit && (
-                    <Button size="sm" variant="outline" onClick={() => openPay(d)}>
-                      Pay
-                    </Button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+          <Link
+            href="/purchases?status=unpaid"
+            className="text-xs font-semibold text-[var(--gk-secondary)] hover:underline"
+          >
+            See all →
+          </Link>
+        </div>
+        <ul className="space-y-2">
+          {dueRows.map((d) => (
+            <li
+              key={d.id}
+              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm transition-colors hover:bg-accent"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">{d.item_name}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(d.purchase_date)}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-numeric tabular-nums text-destructive">
+                  {formatInr(Number(d.balance_due))}
+                </span>
+                {canEdit && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                    onClick={() => openPay(d)}
+                  >
+                    Pay
+                  </Button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
       {dialog}
     </>
   );
@@ -156,38 +170,68 @@ export function DashboardRecentTable({
 }) {
   const { dialog, openPay } = usePayDialog();
 
+  function statusClass(status: string) {
+    switch (status) {
+      case "paid":
+        return "status-paid";
+      case "unpaid":
+        return "status-unpaid";
+      case "partial":
+        return "status-partial";
+      default:
+        return "status-pending";
+    }
+  }
+
   return (
     <>
-      <Card className="shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-lg">Recent purchases</CardTitle>
-          <Link href="/purchases" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-            View all
+      <div className="financial-card-lift overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <h3 className="text-lg font-semibold text-foreground">Recent Transactions</h3>
+          <Link
+            href="/purchases"
+            className="text-xs font-semibold text-[var(--gk-secondary)] hover:underline"
+          >
+            View All Ledger →
           </Link>
-        </CardHeader>
-        <CardContent className="px-0">
+        </div>
+        <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Item</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
+              <TableRow className="bg-accent hover:bg-accent">
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Item
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Date
+                </TableHead>
+                <TableHead className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Amount
+                </TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Status
+                </TableHead>
                 {canEdit && <TableHead className="w-20" />}
               </TableRow>
             </TableHeader>
             <TableBody>
               {recent.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">{r.item_name}</TableCell>
-                  <TableCell>{formatDate(r.purchase_date)}</TableCell>
-                  <TableCell className="text-right tabular-nums">
+                <TableRow key={r.id} className="transition-colors hover:bg-accent/50">
+                  <TableCell className="font-semibold">{r.item_name}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(r.purchase_date)}</TableCell>
+                  <TableCell className="text-right font-numeric tabular-nums">
                     {formatInr(Number(r.total_with_tax ?? r.line_total))}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={r.payment_status === "paid" ? "default" : "secondary"}>
-                      {r.payment_status}
-                    </Badge>
+                    <span className={statusClass(r.payment_status)}>
+                      {r.payment_status === "paid"
+                        ? "Paid"
+                        : r.payment_status === "unpaid"
+                          ? "Unpaid"
+                          : r.payment_status === "partial"
+                            ? "Partial"
+                            : "Pending"}
+                    </span>
                   </TableCell>
                   {canEdit && (
                     <TableCell>
@@ -204,14 +248,14 @@ export function DashboardRecentTable({
                 <TableRow>
                   <TableCell
                     colSpan={canEdit ? 5 : 4}
-                    className="text-muted-foreground py-8 text-center text-sm"
+                    className="py-8 text-center text-sm text-muted-foreground"
                   >
                     {canEdit ? (
                       <>
                         No purchases this month.{" "}
                         <Link
                           href="/purchases?add=1"
-                          className="text-primary underline-offset-4 hover:underline"
+                          className="text-[var(--gk-secondary)] underline-offset-4 hover:underline"
                         >
                           Add your first purchase
                         </Link>
@@ -224,8 +268,8 @@ export function DashboardRecentTable({
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
       {dialog}
     </>
   );
